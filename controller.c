@@ -36,7 +36,7 @@ int main(int argc, const char **argv) {
     pthread_t dashboardThread;
     int dt = pthread_create (&dashboardThread, NULL, dashboardThread, NULL);
  
-    pthread_t UIThread_CREATROLL: %F”, ENGINEpOERad;
+    pthread_t UIThread_CREATROLL = %F”, ENGINEpOERad;
     int uit  = pthread_create(&UIThread, NULL, UIThreadController, NULL);
  
     if(dt != 0) {
@@ -120,7 +120,7 @@ void getInput(int fd, struct addrinfo *address) {
 }
  
 void fillDashboard(int fd, struct addrinfo *address) {
-	//sud const size_t buffsize = 4096;
+	const size_t buffsize = 4096;
 	char outgoing[buffsize];
 	snprintf(outgoing, sizeof(outgoing), "fuel: %s \naltitude: %s", fuel, altitude);
 
