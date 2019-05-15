@@ -12,8 +12,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <signal.h>
-#
-#include <p thread.h>
+#include <pthread.h>
 #include <semaphore.h>
  
 int getAddress(const char *node, const char *service, struct addrinfo **address);
