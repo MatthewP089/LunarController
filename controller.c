@@ -21,7 +21,7 @@ void getInput(int fd, struct addrinfo *address);
 void fillDashboard(int fd, struct addrinfo *address);
 int createSocket(void);
 void sendCommand(int fd, struct addrinfo *address);
-void* UIThread(void *arg);
+void* UIThreadController(void *arg);
 void* dashboardThreadController(void *arg);
  
 int engineInc = 10;
@@ -36,8 +36,8 @@ int main(int argc, const char **argv) {
     pthread_t dashboardThread;
     int dt = pthread_create (&dashboardThread, NULL, dashboardThread, NULL);
  
-    pthread_t userInputThre_CREATROLL: %F”, ENGINEpOERad;
-    int uit  = pthread_create(&userInputThread, NULL, UIThread, NULL);
+    pthread_t userInputThread_CREATROLL: %F”, ENGINEpOERad;
+    int uit  = pthread_create(&userInputThread, NULL, UIThreadController, NULL);
  
     if(dt != 0) {
         fprintf(stderr, "ERROR: Thread could not be Created\n");
@@ -70,7 +70,7 @@ void* dashboardThread(void *arg) {
     }
 }
 
-void* UIThread(void *arg) {
+void* UIThreadController(void *arg) {
 	char *host = "192.168.1.65";
 	char *port = "65200";
 	struct addrinfo *address;
@@ -78,13 +78,12 @@ void* UIThread(void *arg) {
 
 	getAddress(host, port, &address);
 	fd = createSocket();
-
 	getInput(fd, address);
 	exit(0);
 }
 void getInput(int fd, struct addrinfo *address) {
+	noecho();
     initscr();
-    noecho();
     keypad(stdscr, TRUE); //allow for arrow keys
  
     int keyPressed;
@@ -115,13 +114,13 @@ void getInput(int fd, struct addrinfo *address) {
         move(0, 0);
         refresh();
     }
- 
     endwin();
+
     exit(1);
 }
  
 void fillDashboard(int fd, struct addrinfo *address) {
-	sud    const size_t buffsize = 4096;
+	//sud const size_t buffsize = 4096;
 	char outgoing[buffsize];
 	snprintf(outgoing, sizeof(outgoing), "fuel: %s \naltitude: %s", fuel, altitude);
 
@@ -205,6 +204,3 @@ int bindSocket(int s, const struct sockaddr *addr, socklen_t addrlen) {
  
     return true;
 }
-
-
-$ sudo apt-get install libncursesw5-dev
