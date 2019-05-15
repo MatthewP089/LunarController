@@ -97,19 +97,19 @@ void getInput(int fd, struct addrinfo *address) {
         move(10, 0);
         printw("\nFuel: %s \nAltitude: %s", fuel, altitude);
         //we can only add more power if at most 90, since max is 100
-        if(keyPressed == "W" && enginePower <= 90) {
+        if(keyPressed == 87 && enginePower <= 90) {
             enginePower += engineInc;
-            sendCommand(fd, address);
+            sendCommand(fd,address);
         }
-        else if(keyPressed == "S" && enginePower >= 10) {
+        else if(keyPressed == 83 && enginePower >= 10) {
             enginePower -= engineInc;
             sendCommand(fd, address);
         }
-        else if(keyPressed == "A" && rcsRoll > -0.5) {
+        else if(keyPressed == 65 && rcsRoll > -0.5) {
             rcsRoll -= rcsInc;
             sendCommand(fd, address);
         }
-        else if(keyPressed == "D" && rcsRoll <= 0.4) {
+        else if(keyPressed == 68 && rcsRoll <= 0.4) {
             rcsRoll += rcsInc;
             sendCommand(fd, address);
         }
