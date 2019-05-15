@@ -12,13 +12,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <signal.h>
-#include <stdbool.h>
- TEST
- TEST
- TEST
- TEST
-	 TEST
-	 TEST
+#
 #include <p thread.h>
 #include <semaphore.h>
  
@@ -30,6 +24,7 @@ void getUserInput(int fd, struct addrinfo *address);
 void updateDashboard(int fd, struct addrinfo *address);
 void* userInputThreadController(void *arg);
 void* dashThreadController(void *arg);
+int test(void)
  
 int enginePower = 0;
 int engineInc = 10;
