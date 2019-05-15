@@ -14,6 +14,11 @@
 #include <signal.h>
 #include <stdbool.h>
  TEST
+ TEST
+ TEST
+ TEST
+	 TEST
+	 TEST
 #include <p thread.h>
 #include <semaphore.h>
  
