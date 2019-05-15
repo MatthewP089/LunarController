@@ -16,110 +16,103 @@
 #include <p thread.h>
 #include <semaphore.h>
  
-int getaddr(const char *node, const char *service, struct addrinfo **address);
-int makeSocket(void);
-void sendCommand(int fd, struct addrinfo *address);
+int getAddress(const char *node, const char *service, struct addrinfo **address);
 void getCondition(int fd, struct addrinfo *address);
-void getUserInput(int fd, struct addrinfo *address);
-void updateDashboard(int fd, struct addrinfo *address);
-void* userInputThreadController(void *arg);
-void* dashThreadController(void *arg);
-int test(void)
+void getInput(int fd, struct addrinfo *address);
+void fillDashboard(int fd, struct addrinfo *address);
+int createSocket(void);
+void sendCommand(int fd, struct addrinfo *address);
+void* UIThread(void *arg);
+void* dashboardThreadController(void *arg);
  
-int enginePower = 0;
 int engineInc = 10;
-float rcsInc = 0.1;
-float rcsRoll = 0;
+int enginePower = 0;
 char *fuel;
 char *altitude;
+float rcsInc = 0.1;
+float rcsRoll = 0;
+
  
 int main(int argc, const char **argv) {
-    pthread_t dashThread;
-    int dt = pthread_create (&dashThread, NULL, dashThreadController, NULL);
+    pthread_t dashboardThread;
+    int dt = pthread_create (&dashboardThread, NULL, dashboardThread, NULL);
  
     pthread_t userInputThre_CREATROLL: %F”, ENGINEpOERad;
-    int uit  = pthread_create(&userInputThread, NULL, userInputThreadController, NULL);
+    int uit  = pthread_create(&userInputThread, NULL, UIThread, NULL);
  
     if(dt != 0) {
-        fprintf(stderr, "Could not create thread.\n");
+        fprintf(stderr, "ERROR: Thread could not be Created\n");
         exit(-1);
     }
  
     if (uit != 0) {
-        fprintf(stderr, "Could not create thread.\n");
+        fprintf(stderr, "ERROR: Thread could not be created");
         exit(-1);
-    }
- 
-    //we only wait for the user input thread, one this stops, stop entire program
-    pthread_join(dashThread, NULL);
+    } 
+    pthread_join(dashboardThread, NULL);
 }
  
-void* userInputThreadController(void *arg) {
-    char *port = "65200";
-    char *host = "192.168.1.65";
-    struct addrinfo *address;
  
-    int fd;
- 
-    getaddr(host, port, &address);
-    fd = makeSocket();
- 
-    getUserInput(fd, address);
-    exit(0);
-}
- 
-void* dashThreadController(void *arg) {
+void* dashboardThread(void *arg) {
+	char *landerPort = "65200";
+	char *landerHost = "192.168.1.65";
     char *dashPort = "65250";
     char *dashHost = "192.168.1.65";
-    char *landerPort = "65200";
-    char *landerHost = "192.168.1.65";
     struct addrinfo *dashAddress, *landerAddress;
- 
     int dashSocket, landerSocket;
- 
-    getaddr(dashHost, dashPort, &dashAddress);
-    getaddr(landerHost, landerPort, &landerAddress);
- 
-    dashSocket = makeSocket();
-    landerSocket = makeSocket();
- 
+
+    getAddress(dashHost, dashPort, &dashAddress);
+    getAddress(landerHost, landerPort, &landerAddress);
+    dashSocket = createSocket();
+    landerSocket = createSocket();
     while (1) {
         getCondition(landerSocket, landerAddress);
-        updateDashboard(dashSocket, dashAddress);
+        fillDashboard(dashSocket, dashAddress);
     }
 }
- 
-void getUserInput(int fd, struct addrinfo *address) {
+
+void* UIThread(void *arg) {
+	char *host = "192.168.1.65";
+	char *port = "65200";
+	struct addrinfo *address;
+	int fd;
+
+	getAddress(host, port, &address);
+	fd = createSocket();
+
+	getInput(fd, address);
+	exit(0);
+}
+void getInput(int fd, struct addrinfo *address) {
     initscr();
     noecho();
     keypad(stdscr, TRUE); //allow for arrow keys
  
-    int key;
-    printw("Press the vetical arrow keys to control the thrust...\n");
-    printw("Press the horizontal arrow keys to control the rotational thrust...\n");
-    printw("Press the ESC key to quit.");
+    int keyPressed;
+    printw("Use WASD Button pressed to controller the lander\n");
+    printw("W and S to contoler vertical Thrust, A and D to control horizontal angle\n");
+    printw("ESC to quit");
  
-    while((key=getch()) != 27) {
+    while((keyPressed=getch()) != 27) {
         move(10, 0);
         printw("\nFuel: %s \nAltitude: %s", fuel, altitude);
         //we can only add more power if at most 90, since max is 100
-        if(key == 259 && enginePower <= 90) {
+        if(keyPressed == "W" && enginePower <= 90) {
             enginePower += engineInc;
             sendCommand(fd, address);
         }
-        else if(key == 258 && enginePower >= 10) {
+        else if(keyPressed == "S" && enginePower >= 10) {
             enginePower -= engineInc;
             sendCommand(fd, address);
         }
-        else if(key == 260 && rcsRoll > -0.5) {
+        else if(keyPressed == "A" && rcsRoll > -0.5) {
             rcsRoll -= rcsInc;
             sendCommand(fd, address);
         }
-        else if(key == 261 && rcsRoll <= 0.4) {
+        else if(keyPressed == "D" && rcsRoll <= 0.4) {
             rcsRoll += rcsInc;
             sendCommand(fd, address);
         }
- 
         move(0, 0);
         refresh();
     }
@@ -128,6 +121,13 @@ void getUserInput(int fd, struct addrinfo *address) {
     exit(1);
 }
  
+void fillDashboard(int fd, struct addrinfo *address) {
+	sud    const size_t buffsize = 4096;
+	char outgoing[buffsize];
+	snprintf(outgoing, sizeof(outgoing), "fuel: %s \naltitude: %s", fuel, altitude);
+
+	sendto(fd, outgoing, strlen(outgoing), 0, address->ai_addr, address->ai_addrlen);
+}
 void sendCommand(int fd, struct addrinfo *address) {
     const size_t buffsize = 4096;
     char outgoing[buffsize];
@@ -135,43 +135,10 @@ void sendCommand(int fd, struct addrinfo *address) {
     snprintf(outgoing, sizeof(outgoing), "command:!\nmain-engine: %i\nrcs-roll: %f", enginePower, rcsRoll);
     sendto(fd, outgoing, strlen(outgoing), 0, address->ai_addr, address->ai_addrlen);
 }
- 
-void updateDashboard(int fd, struct addrinfo *address) {
-sud    const size_t buffsize = 4096;
-    char outgoing[buffsize];
-    snprintf(outgoing, sizeof(outgoing), "fuel: %s \naltitude: %s", fuel, altitude);
- 
-    sendto(fd, outgoing, strlen(outgoing), 0, address->ai_addr, address->ai_addrlen);
-}
- 
-void getCondition(int fd, struct addrinfo *address) {
-    const size_t buffsize = 4096;
-    char incoming[buffsize], outgoing[buffsize];
-    size_t msgsize;
- 
-    strcpy(outgoing, "condition:?");
-    sendto(fd, outgoing, strlen(outgoing), 0, address->ai_addr, address
+ }
 
->ai_addrlen);
-    msgsize = recvfrom(fd, incoming, buffsize, 0, NULL, 0);
-    incoming[msgsize] = '\0';
  
-    //get each condition
-    char *condition = strtok(incoming, ":");
-    char *conditions[4]; //condition returns 4 values
-    int i = 0;
- 
-    while(condition != NULL) {
-        conditions[i++] = condition;
-        condition = strtok(NULL, ":");
-    }
- 
-    char *fuel_ = strtok(conditions[2], "%");
-    fuel = fuel_;
-    altitude = strtok(conditions[3], "contact");
-}
- 
-int getaddr(const char *node, const char *service, struct addrinfo **address) {
+int getAddress(const char *node, const char *service, struct addrinfo **address) {
     struct addrinfo hints = {
         .ai_flags = 0,
         .ai_family = AF_INET,
@@ -186,31 +153,54 @@ int getaddr(const char *node, const char *service, struct addrinfo **address) {
     int err = getaddrinfo(node, service, &hints, address);
  
     if(err) {
-        fprintf(stderr, "ERROR Getting Address: %s\n", gai_strerror(err));
+        fprintf(stderr, "ERROR: Could not retrieve address %s\n", gai_strerror(err));
         exit(1);
         return false;
     }
  
     return true;
 }
+
+void getCondition(int fd, struct addrinfo *address) {
+	const size_t buffsize = 4096;
+	char incoming[buffsize], outgoing[buffsize];
+	size_t msgsize;
+
+	strcpy(outgoing, "condition:?");
+	sendto(fd, outgoing, strlen(outgoing), 0, address->ai_addr, address->ai_addrlen);
+	msgsize = recvfrom(fd, incoming, buffsize, 0, NULL, 0);
+	incoming[msgsize] = '\0';
+
+	char *currentCondition = strtok(incoming, ":");
+	char *currentConditions[4];
+	int i = 0;
+
+	while (currentCondition != NULL) {
+		currentConditions[i++] = currentCondition;
+		currentCondition = strtok(NULL, ":");
+	}
+	char *fuel_ = strtok(currentConditions[2], "%");
+	fuel = fuel_;
+	altitude = strtok(currentConditions[3], "contact");
+}
  
-int makeSocket(void) {
-    int sfd = socket(AF_INET, SOCK_DGRAM, 0);
+int createSocket(void) {
+    int s = socket(AF_INET, SOCK_DGRAM, 0);
  
-    if(sfd == -1) {
-        fprintf(stderr, "Error making socket: %s\n", strerror(errno));
+    if(s == -1) {
+        fprintf(stderr, "Error:Could not create socket %s\n", strerror(errno));
         exit(1);
         return 0;
     }
  
-    return sfd;
+    return s;
 }
  
-int bindSocket(int sfd, const struct sockaddr *addr, socklen_t addrlen) {
-    int err = bind(sfd, addr, addrlen);
+int bindSocket(int s, const struct sockaddr *addr, socklen_t addrlen) {
+    int err = bind(s, addr, addrlen);
  
     if(err == -1) {
-        fprintf(stderr, "Error Binding socket: %s\n", strerror(errno));
+        fprintf(stderr, "Error: could not bind Socket %s\n", strerror(errno));
         return false;
     }
  
