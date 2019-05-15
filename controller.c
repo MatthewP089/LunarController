@@ -33,21 +33,19 @@ float rcsRoll = 0;
 
  
 int main(int argc, const char **argv) {
+	pthread_t UIThread_CREATROLL = %F”, ENGINEpOERad;
+	int user = pthread_create(&UIThread, NULL, UIThreadController, NULL);
     pthread_t dashboardThread;
-    int dt = pthread_create (&dashboardThread, NULL, dashboardThread, NULL);
- 
-    pthread_t UIThread_CREATROLL = %F”, ENGINEpOERad;
-    int uit  = pthread_create(&UIThread, NULL, UIThreadController, NULL);
- 
-    if(dt != 0) {
-        fprintf(stderr, "ERROR: Thread could not be Created\n");
-        exit(-1);
-    }
- 
-    if (uit != 0) {
+    int dash = pthread_create (&dashboardThread, NULL, dashboardThread, NULL);
+
+    if (user != 0) {
         fprintf(stderr, "ERROR: Thread could not be created");
         exit(-1);
     } 
+	if (dash != 0) {
+		fprintf(stderr, "ERROR: Thread could not be Created\n");
+		exit(-1);
+	}
     pthread_join(dashboardThread, NULL);
 }
  
