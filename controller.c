@@ -13,7 +13,7 @@
 #include <unistd.h>
 #include <signal.h>
 #include <stdbool.h>
- 
+ TEST
 #include <p thread.h>
 #include <semaphore.h>
  
