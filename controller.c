@@ -2,19 +2,18 @@
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <netdb.h>
- 
+#include <pthread.h>
+#include <semaphore.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
- 
-#include <ncurses.h>
-#include <string.h>
 #include <errno.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <signal.h>
-#include <pthread.h>
-#include <semaphore.h>
- 
+#include <ncurses.h>
+#include <string.h>
+
+ //methods 
 int getAddress(const char *node, const char *service, struct addrinfo **address);
 void getCondition(int fd, struct addrinfo *address);
 void getInput(int fd, struct addrinfo *address);
@@ -23,7 +22,8 @@ int createSocket(void);
 void sendCommand(int fd, struct addrinfo *address);
 void* UIThreadController(void *arg);
 void* dashboardThreadController(void *arg);
- 
+
+//variables 
 int engineInc = 10;
 int enginePower = 0;
 char *fuel;
@@ -36,8 +36,8 @@ int main(int argc, const char **argv) {
     pthread_t dashboardThread;
     int dt = pthread_create (&dashboardThread, NULL, dashboardThread, NULL);
  
-    pthread_t userInputThread_CREATROLL: %F”, ENGINEpOERad;
-    int uit  = pthread_create(&userInputThread, NULL, UIThreadController, NULL);
+    pthread_t UIThread_CREATROLL: %F”, ENGINEpOERad;
+    int uit  = pthread_create(&UIThread, NULL, UIThreadController, NULL);
  
     if(dt != 0) {
         fprintf(stderr, "ERROR: Thread could not be Created\n");
@@ -133,7 +133,7 @@ void sendCommand(int fd, struct addrinfo *address) {
     snprintf(outgoing, sizeof(outgoing), "command:!\nmain-engine: %i\nrcs-roll: %f", enginePower, rcsRoll);
     sendto(fd, outgoing, strlen(outgoing), 0, address->ai_addr, address->ai_addrlen);
 }
- }
+ 
 
  
 int getAddress(const char *node, const char *service, struct addrinfo **address) {
