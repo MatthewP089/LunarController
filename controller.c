@@ -49,18 +49,7 @@ int main(int argc, const char **argv) {
     pthread_join(dashboardThread, NULL);
 }
  
-void* UIThreadController(void *arg) {
-	char *host = "192.168.56.1";
-	char *port = "65200";
-	struct addrinfo *address;
-	int fd;
-
-	getAddress(host, port, &address);
-	fd = createSocket();
-	getInput(fd, address);
-	exit(0);
-}
-
+ 
 void* dashboardThreadController(void *arg) {
 	char *landerPort = "65200";
 	char *landerHost = "192.168.56.1";
@@ -79,7 +68,17 @@ void* dashboardThreadController(void *arg) {
     }
 }
 
+void* UIThreadController(void *arg) {
+	char *host = "192.168.56.1";
+	char *port = "65200";
+	struct addrinfo *address;
+	int fd;
 
+	getAddress(host, port, &address);
+	fd = createSocket();
+	getInput(fd, address);
+	exit(0);
+}
 void getInput(int fd, struct addrinfo *address) {
 	noecho();
     initscr();
@@ -118,14 +117,6 @@ void getInput(int fd, struct addrinfo *address) {
     exit(1);
 }
  
-void sendCommand(int fd, struct addrinfo *address) {
-	const size_t buffsize = 4096;
-	char outgoing[buffsize];
-
-	snprintf(outgoing, sizeof(outgoing), "command:!\nmain-engine: %i\nrcs-roll: %f", enginePower, rcsRoll);
-	sendto(fd, outgoing, strlen(outgoing), 0, address->ai_addr, address->ai_addrlen);
-}
-
 void fillDashboard(int fd, struct addrinfo *address) {
 	const size_t buffsize = 4096;
 	char outgoing[buffsize];
@@ -133,11 +124,35 @@ void fillDashboard(int fd, struct addrinfo *address) {
 
 	sendto(fd, outgoing, strlen(outgoing), 0, address->ai_addr, address->ai_addrlen);
 }
-
+void sendCommand(int fd, struct addrinfo *address) {
+    const size_t buffsize=4096;
+    char outgoing[buffsize];
+ 
+    snprintf(outgoing, sizeof(outgoing), "command:!\nmain-engine: %i\nrcs-roll: %f", enginePower, rcsRoll);
+    sendto(fd, outgoing, strlen(outgoing), 0, address->ai_addr, address->ai_addrlen);
+}
  
 
  
-
+int getAddress(const char *node, const char *service, struct addrinfo **address) {
+    struct addrinfo hints = {
+        .ai_flags = 0,
+        .ai_family = AF_INET,
+        .ai_socktype = SOCK_DGRAM
+    };
+ 
+    if(node)
+        hints.ai_flags = AI_CANONNAME;
+    else
+        hints.ai_flags = AI_PASSIVE;
+    int err = getaddrinfo(node, service, &hints, address);
+    if(err) {
+        fprintf(stderr, "ERROR: Could not retrieve address %s\n", gai_strerror(err));
+        exit(1);
+        return false;
+    }
+    return true;
+}
 
 void getCondition(int fd, struct addrinfo *address) {
 	const size_t buffsize = 4096;
@@ -157,26 +172,6 @@ void getCondition(int fd, struct addrinfo *address) {
 	char *fuel_ = strtok(currentConditions[2], "%");
 	fuel = fuel_;
 	altitude = strtok(currentConditions[3], "contact");
-}
-
-int getAddress(const char *node, const char *service, struct addrinfo **address) {
-	struct addrinfo hints = {
-		.ai_flags = 0,
-		.ai_family = AF_INET,
-		.ai_socktype = SOCK_DGRAM
-	};
-
-	if (node)
-		hints.ai_flags = AI_CANONNAME;
-	else
-		hints.ai_flags = AI_PASSIVE;
-	int err = getaddrinfo(node, service, &hints, address);
-	if (err) {
-		fprintf(stderr, "ERROR: Could not retrieve address %s\n", gai_strerror(err));
-		exit(1);
-		return false;
-	}
-	return true;
 }
  
 int createSocket(void) {
