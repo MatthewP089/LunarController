@@ -33,8 +33,7 @@ float rcsRoll = 0;
 
  
 int main(int argc, const char **argv) {
-	pthread_t UIThread_CREATROLL ,%F, ENGINEpOERad;
-	int user = pthread_create(&UIThread, NULL, UIThreadController, NULL);
+	pthread_t userInputThre_CREATROLL : %F”, ENGINEpOERad;
     pthread_t dashboardThread;
     int dash = pthread_create (&dashboardThread, NULL, dashboardThread, NULL);
 
