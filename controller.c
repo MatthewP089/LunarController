@@ -50,12 +50,14 @@ int main(int argc, const char **argv) {
     pthread_join(dashboardThread, NULL);
 }
  
- 
+ /*
+ thread for the dashboard 
+ */
 void* dashboardThreadController(void *arg) {
 	char *landerPort = "65200";
-	char *landerHost = "192.168.56.1";
+	char *landerHost = "127.0.1.1";
     char *dashPort = "65250";
-    char *dashHost = "192.168.56.1";
+    char *dashHost = "127.0.1.1";
     struct addrinfo *dashAddress, *landerAddress;
     int dashSocket, landerSocket;
 
@@ -69,8 +71,11 @@ void* dashboardThreadController(void *arg) {
     }
 }
 
+/*
+thread for the user input 
+*/
 void* UIThreadController(void *arg) {
-	char *host = "192.168.56.1";
+	char *host = "127.0.1.1";
 	char *port = "65200";
 	struct addrinfo *address;
 	int fd;
@@ -80,14 +85,19 @@ void* UIThreadController(void *arg) {
 	getInput(fd, address);
 	exit(0);
 }
+
+/*
+method to detect when the user hits he arrow keys 
+and move the lander correspondinly 
+*/
 void getInput(int fd, struct addrinfo *address) {
 	noecho();
     initscr();
 	keypad(stdscr, TRUE);
     
     int keyPressed;
-    printw("Use WASD Button pressed to controller the lander\n");
-    printw("W and S to contoler vertical Thrust, A and D to control horizontal angle\n");
+    printw("Use Arrow  Button pressed to controller the lander\n");
+    printw("UP and DOWN to contoler vertical Thrust, LEFT and RIGHT to control horizontal angle\n");
     printw("ESC to quit");
  
 	while ((keyPressed = getch()) != 27) {
@@ -109,7 +119,6 @@ void getInput(int fd, struct addrinfo *address) {
 			rcsRoll += rcsInc;
 			sendCommand(fd, address);
 		}
-
         move(0, 0);
         refresh();
     }
@@ -118,6 +127,9 @@ void getInput(int fd, struct addrinfo *address) {
     exit(1);
 }
  
+/*
+method to fill the dashboard with relevent information 
+*/
 void fillDashboard(int fd, struct addrinfo *address) {
 	const size_t buffsize = 4096;
 	char outgoing[buffsize];
@@ -125,6 +137,10 @@ void fillDashboard(int fd, struct addrinfo *address) {
 
 	sendto(fd, outgoing, strlen(outgoing), 0, address->ai_addr, address->ai_addrlen);
 }
+
+/*
+method to send commands to the lander 
+*/
 void sendCommand(int fd, struct addrinfo *address) {
     const size_t buffsize=4096;
     char outgoing[buffsize];
@@ -133,8 +149,9 @@ void sendCommand(int fd, struct addrinfo *address) {
     sendto(fd, outgoing, strlen(outgoing), 0, address->ai_addr, address->ai_addrlen);
 }
  
-
- 
+/*
+method to get the address of the server 
+*/
 int getAddress(const char *node, const char *service, struct addrinfo **address) {
     struct addrinfo hints = {
         .ai_flags = 0,
@@ -155,6 +172,9 @@ int getAddress(const char *node, const char *service, struct addrinfo **address)
     return true;
 }
 
+/*
+method to get the condition of the lander 
+*/
 void getCondition(int fd, struct addrinfo *address) {
 	const size_t buffsize = 4096;
 	char incoming[buffsize], outgoing[buffsize];
@@ -175,6 +195,9 @@ void getCondition(int fd, struct addrinfo *address) {
 	altitude = strtok(currentConditions[3], "contact");
 }
  
+/*
+method to create a socket fo the TCP protocol 
+*/
 int createSocket(void) {
     int s = socket(AF_INET, SOCK_DGRAM, 0);
     if(s == -1) {
@@ -185,6 +208,9 @@ int createSocket(void) {
     return s;
 }
  
+/*
+method to bind the server to the socket 
+*/
 int bindSocket(int s, const struct sockaddr *addr, socklen_t addrlen) {
     int err = bind(s, addr, addrlen);
  
@@ -192,6 +218,5 @@ int bindSocket(int s, const struct sockaddr *addr, socklen_t addrlen) {
         fprintf(stderr, "Error: could not bind Socket %s\n", strerror(errno));
         return false;
     }
- 
     return true;
 }
