@@ -80,27 +80,27 @@ void* UIThreadController(void *arg) {
 	exit(0);
 }
 void getInput(int fd, struct addrinfo *address) {
+	keypad(stdscr, TRUE);
 	noecho();
     initscr();
-    keypad(stdscr, TRUE); //allow for arrow keys
- 
-    int key;
+    
+    int keyPressed;
     printw("Use WASD Button pressed to controller the lander\n");
     printw("W and S to contoler vertical Thrust, A and D to control horizontal angle\n");
     printw("ESC to quit");
  
-	while ((key = getch()) != 27) {
+	while ((keyPressed = getch()) != 27) {
 		move(10, 0);
 		printw("\nFuel: %s \nAltitude: %s", fuel, altitude);
-		if (key == 259 && enginePower <= 90) {
+		if (keyPressed == 259 && enginePower <= 90) {
 			enginePower += engineInc;
 			sendCommand(fd, address);
 		}
-		else if (key == 258 && enginePower >= 10) {
+		else if (keyPressed == 258 && enginePower >= 10) {
 			enginePower -= engineInc;
 			sendCommand(fd, address);
 		}
-		else if (key == 260 && rcsRoll > -0.5) {
+		else if (keyPressed == 260 && rcsRoll > -0.5) {
 			rcsRoll -= rcsInc;
 			sendCommand(fd, address);
 		}
