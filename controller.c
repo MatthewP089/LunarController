@@ -36,7 +36,7 @@ int main(int argc, const char **argv) {
 	pthread_t UIThread;
 	int user = pthread_create(&UIThread, NULL, UIThreadController, NULL);
     pthread_t dashboardThread;
-    int dash = pthread_create (&dashboardThread, NULL, dashboardThread, NULL);
+    int dash = pthread_create(&dashboardThread, NULL, dashboardThread, NULL);
 
     if (user != 0) {
         fprintf(stderr, "ERROR: Thread could not be created");
