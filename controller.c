@@ -93,12 +93,12 @@ void getInput(int fd, struct addrinfo *address) {
 	while ((keyPressed = getch()) != 27) {
 		move(10, 0);
 		printw("\nFuel: %s \nAltitude: %s", fuel, altitude);
+		if (keyPressed == 258 && enginePower >= 10) {
+		enginePower -= engineInc;
+		sendCommand(fd, address);
+		}
 		if (keyPressed == 259 && enginePower <= 90) {
 			enginePower += engineInc;
-			sendCommand(fd, address);
-		}
-		else if (keyPressed == 258 && enginePower >= 10) {
-			enginePower -= engineInc;
 			sendCommand(fd, address);
 		}
 		else if (keyPressed == 260 && rcsRoll > -0.5) {
