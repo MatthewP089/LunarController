@@ -92,20 +92,20 @@ void getInput(int fd, struct addrinfo *address) {
     while((keyPressed=getch()) != 27) {
         move(10, 0);
         printw("\nFuel: %s \nAltitude: %s", fuel, altitude);
-        //we can only add more power if at most 90, since max is 100
-        if(keyPressed == 87 && enginePower <= 90) {
+		if (keyPressed == 258 && enginePower >= 10) {
+		enginePower -= engineInc;
+		sendCommand(fd, address);
+		}
+        else if(keyPressed == 259 && enginePower <= 90) {
             enginePower += engineInc;
             sendCommand(fd,address);
         }
-        else if(keyPressed == 83 && enginePower >= 10) {
-            enginePower -= engineInc;
-            sendCommand(fd, address);
-        }
-        else if(keyPressed == 65 && rcsRoll > -0.5) {
+        
+        else if(keyPressed == 260 && rcsRoll > -0.5) {
             rcsRoll -= rcsInc;
             sendCommand(fd, address);
         }
-        else if(keyPressed == 68 && rcsRoll <= 0.4) {
+        else if(keyPressed == 261 && rcsRoll <= 0.4) {
             rcsRoll += rcsInc;
             sendCommand(fd, address);
         }
@@ -125,7 +125,7 @@ void fillDashboard(int fd, struct addrinfo *address) {
 	sendto(fd, outgoing, strlen(outgoing), 0, address->ai_addr, address->ai_addrlen);
 }
 void sendCommand(int fd, struct addrinfo *address) {
-    const size_t buffsize = 4096;
+    const size_t buffsize=4096;
     char outgoing[buffsize];
  
     snprintf(outgoing, sizeof(outgoing), "command:!\nmain-engine: %i\nrcs-roll: %f", enginePower, rcsRoll);
@@ -145,15 +145,12 @@ int getAddress(const char *node, const char *service, struct addrinfo **address)
         hints.ai_flags = AI_CANONNAME;
     else
         hints.ai_flags = AI_PASSIVE;
- 
     int err = getaddrinfo(node, service, &hints, address);
- 
     if(err) {
         fprintf(stderr, "ERROR: Could not retrieve address %s\n", gai_strerror(err));
         exit(1);
         return false;
     }
- 
     return true;
 }
 
@@ -161,16 +158,13 @@ void getCondition(int fd, struct addrinfo *address) {
 	const size_t buffsize = 4096;
 	char incoming[buffsize], outgoing[buffsize];
 	size_t msgsize;
-
 	strcpy(outgoing, "condition:?");
 	sendto(fd, outgoing, strlen(outgoing), 0, address->ai_addr, address->ai_addrlen);
 	msgsize = recvfrom(fd, incoming, buffsize, 0, NULL, 0);
 	incoming[msgsize] = '\0';
-
 	char *currentCondition = strtok(incoming, ":");
 	char *currentConditions[4];
 	int i = 0;
-
 	while (currentCondition != NULL) {
 		currentConditions[i++] = currentCondition;
 		currentCondition = strtok(NULL, ":");
@@ -182,13 +176,11 @@ void getCondition(int fd, struct addrinfo *address) {
  
 int createSocket(void) {
     int s = socket(AF_INET, SOCK_DGRAM, 0);
- 
     if(s == -1) {
         fprintf(stderr, "Error:Could not create socket %s\n", strerror(errno));
         exit(1);
         return 0;
     }
- 
     return s;
 }
  
