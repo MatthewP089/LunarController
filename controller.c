@@ -89,26 +89,26 @@ void getInput(int fd, struct addrinfo *address) {
     printw("W and S to contoler vertical Thrust, A and D to control horizontal angle\n");
     printw("ESC to quit");
  
-    while((keyPressed=getch()) != 27) {
-        move(10, 0);
-        printw("\nFuel: %s \nAltitude: %s", fuel, altitude);
-		if (keyPressed == 258 && enginePower >= 10) {
-		enginePower -= engineInc;
-		sendCommand(fd, address);
+	while ((key = getch()) != 27) {
+		move(10, 0);
+		printw("\nFuel: %s \nAltitude: %s", fuel, altitude);
+		if (key == 259 && enginePower <= 90) {
+			enginePower += engineInc;
+			sendCommand(fd, address);
 		}
-        else if(keyPressed == 259 && enginePower <= 90) {
-            enginePower += engineInc;
-            sendCommand(fd,address);
-        }
-        
-        else if(keyPressed == 260 && rcsRoll > -0.5) {
-            rcsRoll -= rcsInc;
-            sendCommand(fd, address);
-        }
-        else if(keyPressed == 261 && rcsRoll <= 0.4) {
-            rcsRoll += rcsInc;
-            sendCommand(fd, address);
-        }
+		else if (key == 258 && enginePower >= 10) {
+			enginePower -= engineInc;
+			sendCommand(fd, address);
+		}
+		else if (key == 260 && rcsRoll > -0.5) {
+			rcsRoll -= rcsInc;
+			sendCommand(fd, address);
+		}
+		else if (key == 261 && rcsRoll <= 0.4) {
+			rcsRoll += rcsInc;
+			sendCommand(fd, address);
+		}
+
         move(0, 0);
         refresh();
     }
