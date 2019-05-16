@@ -84,7 +84,7 @@ void getInput(int fd, struct addrinfo *address) {
     initscr();
     keypad(stdscr, TRUE); //allow for arrow keys
  
-    int keyPressed;
+    int key;
     printw("Use WASD Button pressed to controller the lander\n");
     printw("W and S to contoler vertical Thrust, A and D to control horizontal angle\n");
     printw("ESC to quit");
