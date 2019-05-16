@@ -80,9 +80,9 @@ void* UIThreadController(void *arg) {
 	exit(0);
 }
 void getInput(int fd, struct addrinfo *address) {
-	keypad(stdscr, TRUE);
 	noecho();
     initscr();
+	keypad(stdscr, TRUE);
     
     int keyPressed;
     printw("Use WASD Button pressed to controller the lander\n");
