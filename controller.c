@@ -50,7 +50,7 @@ int main(int argc, const char **argv) {
 }
  
  
-void* dashboardThread(void *arg) {
+void* dashboardThreadController(void *arg) {
 	char *landerPort = "65200";
 	char *landerHost = "192.168.56.1";
     char *dashPort = "65250";
