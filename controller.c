@@ -69,7 +69,7 @@ void* dashboardThread(void *arg) {
 }
 
 void* UIThreadController(void *arg) {
-	char *host = "192.168.1.65";
+	char *host = "192.168.56.1";
 	char *port = "65200";
 	struct addrinfo *address;
 	int fd;
