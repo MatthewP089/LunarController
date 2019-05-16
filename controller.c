@@ -14,14 +14,15 @@
 #include <string.h>
 
  //methods 
+void* dashboardThreadController(void *arg);
+void* UIThreadController(void *arg);
 int getAddress(const char *node, const char *service, struct addrinfo **address);
 void getCondition(int fd, struct addrinfo *address);
 void getInput(int fd, struct addrinfo *address);
 void fillDashboard(int fd, struct addrinfo *address);
 int createSocket(void);
 void sendCommand(int fd, struct addrinfo *address);
-void* UIThreadController(void *arg);
-void* dashboardThreadController(void *arg);
+
 
 //variables 
 int engineInc = 10;
