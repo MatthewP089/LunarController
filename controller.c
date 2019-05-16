@@ -104,7 +104,7 @@ void getInput(int fd, struct addrinfo *address) {
 			rcsRoll -= rcsInc;
 			sendCommand(fd, address);
 		}
-		else if (key == 261 && rcsRoll <= 0.4) {
+		else if (keyPressed == 261 && rcsRoll <= 0.4) {
 			rcsRoll += rcsInc;
 			sendCommand(fd, address);
 		}
